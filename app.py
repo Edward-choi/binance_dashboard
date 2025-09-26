@@ -10,7 +10,7 @@ import json
 import os
 
 # Streamlit cache to optimize API calls
-# @st.cache_data(ttl=60)
+@st.cache_data(ttl=60)
 def init_exchange():
     exchange = ccxt.binanceusdm({
         'apiKey': os.environ['APIKEY'],  # Replace with your Binance API key
@@ -19,7 +19,7 @@ def init_exchange():
     })
     return exchange
 
-# @st.cache_data(ttl=60)
+@st.cache_data(ttl=60)
 def fetch_ccxt_prices(_exchange, symbols):
     try:
         _exchange.load_markets()
@@ -32,7 +32,7 @@ def fetch_ccxt_prices(_exchange, symbols):
         st.error(f"Error fetching prices: {e}")
         return {symbol: None for symbol in symbols}
 
-# @st.cache_data(ttl=60)
+@st.cache_data(ttl=60)
 def fetch_open_positions(_exchange, symbols):
     try:
         positions = _exchange.fetch_positions(symbols)
@@ -53,7 +53,7 @@ def fetch_open_positions(_exchange, symbols):
         st.error(f"Error fetching positions: {e}")
         return pd.DataFrame()
 
-# @st.cache_data(ttl=300)
+@st.cache_data(ttl=300)
 def fetch_trades_all(_exchange, symbols, since_date):
     try:
         _exchange.load_markets()
@@ -294,8 +294,8 @@ def main():
         elif idx == 2:
             col4.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}/USDT.")
     # Fetch trades and positions
-    # if refresh:
-        # st.cache_data.clear()
+    if refresh:
+        st.cache_data.clear()
     df_trades = fetch_trades_all(exchange, symbols=symbols, since_date=since_date_str)
     df_positions = fetch_open_positions(exchange, symbols=symbols)
     # Filter trades by side
