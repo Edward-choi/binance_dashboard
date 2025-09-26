@@ -1,0 +1,94 @@
+{
+    "instruments": [
+        {
+            "coin": "BTC",
+            "symbol": "BTC/USDT:USDT",
+            "max_pos": 0.003
+        },
+        {
+            "coin": "ETH",
+            "symbol": "ETH/USDT:USDT",
+            "max_pos": 0.025
+        },
+        {
+            "coin": "PEPE",
+            "symbol": "1000PEPE/USDT:USDT",
+            "max_pos": 10000
+        },
+        {
+            "coin": "RENDER",
+            "symbol": "RENDER/USDT:USDT",
+            "max_pos": 100
+        },
+        {
+            "coin": "SUI",
+            "symbol": "SUI/USDT:USDT",
+            "max_pos": 100
+        },
+        {
+            "coin": "ARB",
+            "symbol": "ARB/USDT:USDT",
+            "max_pos": 800
+        },
+        {
+            "coin": "DOGE",
+            "symbol": "DOGE/USDT:USDT",
+            "max_pos": 1000
+        },
+        {
+            "coin": "HBAR",
+            "symbol": "HBAR/USDT:USDT",
+            "max_pos": 1000
+        },
+        {
+            "coin": "XRP",
+            "symbol": "XRP/USDT:USDT",
+            "max_pos": 100
+        },
+        {
+            "coin": "ADA",
+            "symbol": "ADA/USDT:USDT",
+            "max_pos": 200
+        },
+        {
+            "coin": "SHIB",
+            "symbol": "1000SHIB/USDT:USDT",
+            "max_pos": 2000
+        },
+        {
+            "coin": "OP",
+            "symbol": "OP/USDT:USDT",
+            "max_pos": 400
+        },
+        {
+            "coin": "AAVE",
+            "symbol": "AAVE/USDT:USDT",
+            "max_pos": 1
+        },
+        {
+            "coin": "ONDO",
+            "symbol": "ONDO/USDT:USDT",
+            "max_pos": 300
+        },
+        {
+            "coin": "TAO",
+            "symbol": "TAO/USDT:USDT",
+            "max_pos": 1
+        },
+        {
+            "coin": "ALGO",
+            "symbol": "ALGO/USDT:USDT",
+            "max_pos": 1000
+        },
+        {
+            "coin": "SAND",
+            "symbol": "SAND/USDT:USDT",
+            "max_pos": 100
+        },
+        {
+            "coin": "ETHFI",
+            "symbol": "ETHFI/USDT:USDT",
+            "max_pos": 200
+        }
+    ]
+}
