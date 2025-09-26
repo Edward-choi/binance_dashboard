@@ -13,8 +13,8 @@ import os
 # @st.cache_data(ttl=60)
 def init_exchange():
     exchange = ccxt.binanceusdm({
-        'apiKey': st.secrets["APIKEY"],  # Replace with your Binance API key
-        'secret': st.secrets["SECRET"],  # Replace with your Binance secret
+        'apiKey': os.environ['APIKEY'],  # Replace with your Binance API key
+        'secret': os.environ['SECRET'],  # Replace with your Binance secret
         'enableRateLimit': True,
     })
     return exchange
