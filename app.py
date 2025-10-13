@@ -10,7 +10,7 @@ import json
 import os
 
 # Streamlit cache to optimize API calls
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=300)
 def init_exchange():
     exchange = ccxt.binanceusdm({
         'apiKey': os.environ['APIKEY'],  # Replace with your Binance API key
@@ -19,7 +19,7 @@ def init_exchange():
     })
     return exchange
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=300)
 def fetch_ccxt_prices(_exchange, symbols):
     try:
         _exchange.load_markets()
@@ -32,7 +32,7 @@ def fetch_ccxt_prices(_exchange, symbols):
         st.error(f"Error fetching prices: {e}")
         return {symbol: None for symbol in symbols}
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=300)
 def fetch_open_positions(_exchange, symbols):
     try:
         positions = _exchange.fetch_positions(symbols)
