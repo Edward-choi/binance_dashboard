@@ -89,6 +89,11 @@
             "coin": "ETHFI",
             "symbol": "ETHFI/USDT:USDT",
             "max_pos": 200
+        },
+        {
+            "coin": "ZEC",
+            "symbol": "ZEC/USDT:USDT",
+            "max_pos": 1
         }
     ]
 }
