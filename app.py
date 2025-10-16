@@ -306,4 +306,162 @@ def main():
                 df_trades.sort_values(by='Timestamp', ascending=False).style.format({
                     'Price': '{:,.2f}',
                     'Amount': '{:,.4f}',
-                    'Cost': '{:,.
+                    'Cost': '{:,.2f}',
+                    'Fee': '{:,.4f}',
+                    'Realized P&L': '{:,.2f}'
+                }).set_table_styles([
+                    {'selector': 'th', 'props': [('background-color', '#2563eb'), ('color', 'white'), ('font-weight', 'bold')]},
+                    {'selector': 'td', 'props': [('border', '1px solid #e5e7eb')]},
+                    {'selector': 'th, td', 'props': [('color', '#1f2937')]},
+                    {'selector': '@media (prefers-color-scheme: dark) th, td', 'props': [('color', '#f3f4f6')]}
+                ]),
+                use_container_width=True
+            )
+        with tab2:
+            st.markdown('<h3 class="text-lg font-semibold mb-2">📈 Performance Charts</h3>', unsafe_allow_html=True)
+            df_plot = df_trades.copy()
+            if not df_plot.empty:
+                hkt = pytz.timezone('Asia/Hong_Kong')
+                df_plot['Timestamp'] = df_plot['Timestamp'].dt.tz_convert(hkt)
+                df_plot['Date'] = df_plot['Timestamp'].apply(lambda x: x.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1))
+                df_daily = df_plot.groupby('Date')['Realized P&L'].sum().reset_index()
+                df_daily['Cumulative Realized P&L'] = df_daily['Realized P&L'].cumsum()
+            else:
+                df_daily = pd.DataFrame(columns=['Date', 'Cumulative Realized P&L'])
+
+            fig = px.line(
+                df_daily, x='Date', y='Cumulative Realized P&L',
+                title='Cumulative Realized Profit & Loss (Daily at 12:00 AM HKT)',
+                template='plotly_white',
+                color_discrete_map={'Cumulative Realized P&L': '#2563eb'}
+            )
+            fig.update_layout(
+                xaxis_title="Date",
+                yaxis_title="P&L (USDT)",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font={'color': '#1f2937'},
+                title={'font': {'color': '#1f2937'}},
+                hovermode='x unified',
+                legend_title_text='P&L Type'
+            )
+            fig.update_layout(
+                template='plotly_dark' if st.get_option('theme.base') == 'dark' else 'plotly_white',
+                font={'color': '#f3f4f6'} if st.get_option('theme.base') == 'dark' else {'color': '#1f2937'},
+                title={'font': {'color': '#f3f4f6'}} if st.get_option('theme.base') == 'dark' else {'font': {'color': '#1f2937'}}
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            fig = px.histogram(
+                df_trades, x='Realized P&L', nbins=30,
+                title='Realized P&L Distribution',
+                template='plotly_white',
+                color_discrete_sequence=['#ef4444']
+            )
+            fig.update_layout(
+                xaxis_title="P&L (USDT)",
+                yaxis_title="Count",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font={'color': '#1f2937'},
+                title={'font': {'color': '#1f2937'}},
+                hovermode='x unified'
+            )
+            fig.update_layout(
+                template='plotly_dark' if st.get_option('theme.base') == 'dark' else 'plotly_white',
+                font={'color': '#f3f4f6'} if st.get_option('theme.base') == 'dark' else {'color': '#1f2937'},
+                title={'font': {'color': '#f3f4f6'}} if st.get_option('theme.base') == 'dark' else {'font': {'color': '#1f2937'}}
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown('<h3 class="text-lg font-semibold mb-2">🏆 Crypto Leaderboard</h3>', unsafe_allow_html=True)
+            leaderboard = calculate_leaderboard(df_trades, df_positions)
+            if not leaderboard.empty:
+                st.dataframe(
+                    leaderboard.style.format({
+                        'Realized P&L': '{:,.2f}',
+                        'UnrealizedPnl': '{:,.2f}',
+                        'Total P&L': '{:,.2f}'
+                    }).set_table_styles([
+                        {'selector': 'th', 'props': [('background-color', '#2563eb'), ('color', 'white'), ('font-weight', 'bold')]},
+                        {'selector': 'td', 'props': [('border', '1px solid #e5e7eb')]},
+                        {'selector': 'th, td', 'props': [('color', '#1f2937')]},
+                        {'selector': '@media (prefers-color-scheme: dark) th, td', 'props': [('color', '#f3f4f6')]}
+                    ]),
+                    use_container_width=True
+                )
+            else:
+                st.warning("No P&L data available for the selected symbols.")
+        with tab3:
+            st.markdown('<h3 class="text-lg font-semibold mb-2">📊 Trade Analytics</h3>', unsafe_allow_html=True)
+            volume_by_symbol = df_trades.groupby('Symbol')['Cost'].sum().reset_index()
+            fig = px.pie(
+                volume_by_symbol, values='Cost', names='Symbol',
+                title='Trade Volume by Symbol (USDT)',
+                template='plotly_white',
+                color_discrete_sequence=px.colors.qualitative.Set2
+            )
+            fig.update_traces(
+                textinfo='percent+label',
+                hoverinfo='label+percent+value',
+                texttemplate='%{value:,.2f} USDT',
+                textfont={'color': '#ffffff' if st.get_option('theme.base') == 'dark' else '#1f2937'}
+            )
+            fig.update_layout(
+                font={'color': '#1f2937'},
+                title={'font': {'color': '#1f2937'}}
+            )
+            fig.update_layout(
+                template='plotly_dark' if st.get_option('theme.base') == 'dark' else 'plotly_white',
+                font={'color': '#f3f4f6'} if st.get_option('theme.base') == 'dark' else {'color': '#1f2937'},
+                title={'font': {'color': '#f3f4f6'}} if st.get_option('theme.base') == 'dark' else {'font': {'color': '#1f2937'}}
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            side_counts = df_trades['Side'].value_counts().reset_index()
+            side_counts.columns = ['Side', 'Count']
+            fig = px.bar(
+                side_counts, x='Side', y='Count',
+                title='Trades by Position Type (Long/Short)',
+                template='plotly_white',
+                color_discrete_sequence=['#10b981']
+            )
+            fig.update_layout(
+                xaxis_title="Position Type",
+                yaxis_title="Number of Trades",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font={'color': '#1f2937'},
+                title={'font': {'color': '#1f2937'}},
+                hovermode='x unified'
+            )
+            fig.update_layout(
+                template='plotly_dark' if st.get_option('theme.base') == 'dark' else 'plotly_white',
+                font={'color': '#f3f4f6'} if st.get_option('theme.base') == 'dark' else {'color': '#1f2937'},
+                title={'font': {'color': '#f3f4f6'}} if st.get_option('theme.base') == 'dark' else {'font': {'color': '#1f2937'}}
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        with tab4:
+            st.markdown('<h3 class="text-lg font-semibold mb-2">📊 Open Positions</h3>', unsafe_allow_html=True)
+            if not df_positions.empty:
+                st.dataframe(
+                    df_positions.sort_values(by='Timestamp', ascending=False).style.format({
+                        'Contracts': '{:,.4f}',
+                        'EntryPrice': '{:,.2f}',
+                        'CurrentPrice': '{:,.2f}',
+                        'UnrealizedPnl': '{:,.2f}'
+                    }).set_table_styles([
+                        {'selector': 'th', 'props': [('background-color', '#2563eb'), ('color', 'white'), ('font-weight', 'bold')]},
+                        {'selector': 'td', 'props': [('border', '1px solid #e5e7eb')]},
+                        {'selector': 'th, td', 'props': [('color', '#1f2937')]},
+                        {'selector': '@media (prefers-color-scheme: dark) th, td', 'props': [('color', '#f3f4f6')]}
+                    ]),
+                    use_container_width=True
+                )
+            else:
+                st.warning("No open positions for selected symbols.")
+    else:
+        st.warning("No trade or position data available for the selected symbols or date range. Try adjusting your filters or refreshing the data.")
+
+if __name__ == "__main__":
+    main()
