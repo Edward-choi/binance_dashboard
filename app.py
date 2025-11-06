@@ -227,7 +227,7 @@ def main():
         config_path = os.path.join(os.getcwd(), 'instruments.json')
         with open(config_path, 'r') as f:
             data = json.load(f)
-        all_symbols = [instr['symbol'].split(':')[0].replace('/ , '') for instr in data['instruments']]
+        all_symbols = [instr['symbol'].split(':')[0].replace('/' , '') for instr in data['instruments']]
         st.markdown('<h2 class="text-lg font-semibold mb-4">⚙️ Settings</h2>', unsafe_allow_html=True)
         symbols = st.multiselect(
             "Select Symbols",
