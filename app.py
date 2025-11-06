@@ -227,7 +227,7 @@ def main():
         config_path = os.path.join(os.getcwd(), 'instruments.json')
         with open(config_path, 'r') as f:
             data = json.load(f)
-        all_symbols = [f"{instr['symbol'].split('/')[0]}USDT" for instr in data['instruments']]
+        all_symbols = [instr['symbol'].split(':')[0].replace('/ , '') for instr in data['instruments']]
         st.markdown('<h2 class="text-lg font-semibold mb-4">⚙️ Settings</h2>', unsafe_allow_html=True)
         symbols = st.multiselect(
             "Select Symbols",
@@ -260,8 +260,8 @@ def main():
     col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
     try:
         balance = exchange.fetch_balance()
-        total_balance = balance['total'].get('USDT', 0)
-        col1.metric("Account Balance (USDT)", f"${total_balance:,.2f}", delta=None, help="Total USDT balance in your Binance account.")
+        total_balance = balance['total'].get('USDC', 0) + balance['total'].get('USDT', 0)
+        col1.metric("Account Balance (USDT/C)", f"${total_balance:,.2f}", delta=None, help="Total USDT/C balance in your Binance account.")
     except Exception as e:
         col1.error(f"Error fetching balance: {e}")
         if st.button("Retry Balance", key="retry_balance"):
@@ -270,13 +270,13 @@ def main():
     prices = fetch_ccxt_prices(exchange, symbols)
     for idx, symbol in enumerate(symbols[:3]):
         price = prices.get(symbol, None)
-        symbol_name = symbol.replace('USDT', '')
+        symbol_name = symbol.replace('USDT', '').replace('USDC', '')
         if idx == 0:
-            col2.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}/USDT.")
+            col2.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}.")
         elif idx == 1:
-            col3.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}/USDT.")
+            col3.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}.")
         elif idx == 2:
-            col4.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}/USDT.")
+            col4.metric(f"{symbol_name} Price (USD)", f"${price:,.2f}" if price else "N/A", delta=None, help=f"Current price of {symbol_name}.")
 
     if refresh:
         st.cache_data.clear()
@@ -292,11 +292,11 @@ def main():
         st.markdown('<h2 class="text-xl font-semibold mb-4">Key Metrics</h2>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
         col1.metric("Total Trades", metrics['Total Trades'], help="Total number of executed trades.")
-        col2.metric("Total P&L (USDT)", f"${metrics['Total P&L']:,.2f}", delta=f"{metrics['Total P&L']:+.2f}", help="Realized + Unrealized P&L.")
+        col2.metric("Total P&L (USDT/C)", f"${metrics['Total P&L']:,.2f}", delta=f"{metrics['Total P&L']:+.2f}", help="Realized + Unrealized P&L.")
         col3.metric("Win Rate", f"{metrics['Win Rate']:.2f}%", help="Percentage of profitable trades.")
-        col4.metric("Average P&L (USDT)", f"${metrics['Average P&L']:,.2f}", help="Average profit or loss per trade (realized only).")
+        col4.metric("Average P&L (USDT/C)", f"${metrics['Average P&L']:,.2f}", help="Average profit or loss per trade (realized only).")
         col5.metric("Sharpe Ratio", f"{metrics['Sharpe Ratio']:.2f}", help="Risk-adjusted return metric (realized only).")
-        col6.metric("Max Drawdown (USDT)", f"${metrics['Max Drawdown']:,.2f}", help="Maximum loss from peak to trough (realized only).")
+        col6.metric("Max Drawdown (USDT/C)", f"${metrics['Max Drawdown']:,.2f}", help="Maximum loss from peak to trough (realized only).")
 
         tab1, tab2, tab3, tab4 = st.tabs(["Trade History", "Performance Charts", "Trade Analytics", "Open Positions"])
 
@@ -337,7 +337,7 @@ def main():
             )
             fig.update_layout(
                 xaxis_title="Date",
-                yaxis_title="P&L (USDT)",
+                yaxis_title="P&L (USDT/C)",
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 font={'color': '#1f2937'},
@@ -359,7 +359,7 @@ def main():
                 color_discrete_sequence=['#ef4444']
             )
             fig.update_layout(
-                xaxis_title="P&L (USDT)",
+                xaxis_title="P&L (USDT/C)",
                 yaxis_title="Count",
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
@@ -397,14 +397,14 @@ def main():
             volume_by_symbol = df_trades.groupby('Symbol')['Cost'].sum().reset_index()
             fig = px.pie(
                 volume_by_symbol, values='Cost', names='Symbol',
-                title='Trade Volume by Symbol (USDT)',
+                title='Trade Volume by Symbol (USDT/C)',
                 template='plotly_white',
                 color_discrete_sequence=px.colors.qualitative.Set2
             )
             fig.update_traces(
                 textinfo='percent+label',
                 hoverinfo='label+percent+value',
-                texttemplate='%{value:,.2f} USDT',
+                texttemplate='%{value:,.2f} USDT/C',
                 textfont={'color': '#ffffff' if st.get_option('theme.base') == 'dark' else '#1f2937'}
             )
             fig.update_layout(
